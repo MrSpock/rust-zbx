@@ -1,7 +1,7 @@
 extern crate libc;
 
 use std::ffi;
-use libc::{c_char, c_int, c_uint, uint64_t,  c_double, malloc, strncpy};
+use libc::{c_char, c_int, c_uint, uint64_t, c_double, malloc, strncpy};
 
 // Return codes used by module during (un)initialization
 pub const ZBX_MODULE_OK: c_int = 0;
@@ -81,7 +81,7 @@ pub struct AGENT_REQUEST {
 }
 
 impl AGENT_REQUEST {
-    pub fn get_params<'a>(request: *mut AGENT_REQUEST) -> Vec<&'a[u8]> {
+    pub fn get_params<'a>(request: *mut AGENT_REQUEST) -> Vec<&'a [u8]> {
         unsafe {
             let len = (*request).nparam;
             let mut v = Vec::new();
@@ -163,7 +163,7 @@ impl AGENT_RESULT {
 // string, which is free(3)'d by Zabbix once done with the result.
 unsafe fn string_to_malloc_ptr(src: &str) -> *mut c_char {
     let c_src = ffi::CString::new(src).unwrap();
-    let len = c_src.to_bytes_with_nul().len() as u64;
+    let len = c_src.to_bytes_with_nul().len() as usize;
 
     let dst = malloc(len) as *mut c_char;
     strncpy(dst, c_src.as_ptr(), len);
@@ -172,8 +172,7 @@ unsafe fn string_to_malloc_ptr(src: &str) -> *mut c_char {
 }
 
 pub fn create_items(metrics: &Vec<Metric>) -> *const ZBX_METRIC {
-    let items = metrics
-        .iter()
+    let items = metrics.iter()
         .map(|metric| metric.to_zabbix_item())
         .collect::<Vec<_>>();
 
